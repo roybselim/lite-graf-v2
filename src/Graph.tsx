@@ -37,7 +37,9 @@ function Graph(_props: IGraphProps) {
 	const generateGridsCoordinatesPoints = () => {
 		let contents: any = [];
 		const remainder_x = verticalCenter % unitSize;
-		for (let i = 0; i < width; i++) {
+		const remainder_y = horizontalCenter % unitSize;
+		const biggerValue = Math.max(width, height);
+		for (let i = 0; i < biggerValue; i++) {
 			if (Math.abs(i - remainder_x) % unitSize < 1) {
 				contents.push(
 					<div
@@ -61,6 +63,29 @@ function Graph(_props: IGraphProps) {
 					</div>
 				);
 			}
+			if (Math.abs(i - remainder_y) % unitSize < 1 && i < height) {
+				contents.push(
+					<div
+						key={`${Math.random() * Date.now()}`}
+						className="absBlack horizontalGrid"
+						style={{
+							top: `${i - 1}px`,
+						}}
+					/>
+				);
+				contents.push(
+					<div
+						key={`${Math.random() * Date.now()}`}
+						className="coordinate"
+						style={{
+							left: `${verticalCenter}px`,
+							top: `${i}px`,
+						}}
+					>
+						{Math.round((horizontalCenter - i) / unitSize).toFixed(0)}
+					</div>
+				);
+			}
 			const pointAtValue =
 				getValueAtPoint('Math.sin(x)', i - verticalCenter) * unitSize +
 				(horizontalCenter + verticalShift);
@@ -74,32 +99,6 @@ function Graph(_props: IGraphProps) {
 							bottom: `${pointAtValue}px`,
 						}}
 					/>
-				);
-			}
-		}
-		const remainder_y = horizontalCenter % unitSize;
-		for (let j = 0; j < height; j++) {
-			if (Math.abs(j - remainder_y) % unitSize < 1) {
-				contents.push(
-					<div
-						key={`${Math.random() * Date.now()}`}
-						className="absBlack horizontalGrid"
-						style={{
-							top: `${j - 1}px`,
-						}}
-					/>
-				);
-				contents.push(
-					<div
-						key={`${Math.random() * Date.now()}`}
-						className="coordinate"
-						style={{
-							left: `${verticalCenter}px`,
-							top: `${j}px`,
-						}}
-					>
-						{Math.round((horizontalCenter - j) / unitSize).toFixed(0)}
-					</div>
 				);
 			}
 		}
