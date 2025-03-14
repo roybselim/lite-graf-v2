@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 import { HORIZONTAL_SHIFT, UNIT_SIZE, VERTICAL_SHIFT } from './constants';
 import Graph from './Graph';
 import Controls from './Controls';
+import Calculator from './Calculator';
 
 function App() {
 	const [unitSize, setUnitSize] = useState(UNIT_SIZE);
 	const [horizontalShift, setHorizontalShift] = useState(HORIZONTAL_SHIFT);
 	const [verticalShift, setVerticalShift] = useState(VERTICAL_SHIFT);
 	const [graphType, setGraphType] = useState('Equation');
+	const [equation, setEquation] = useState<string[]>([]);
 
 	return (
 		<div>
@@ -17,6 +19,7 @@ function App() {
 				horizontalShift={horizontalShift}
 				verticalShift={verticalShift}
 				graphType={graphType}
+				equation={equation.join('')}
 			/>
 			<Controls
 				unitSize={unitSize}
@@ -26,7 +29,10 @@ function App() {
 				horizontalShift={horizontalShift}
 				setHorizontalShift={setHorizontalShift}
 				setGraphType={setGraphType}
+				setEquation={setEquation}
+				graphType={graphType}
 			/>
+			<Calculator equation={equation} setEquation={setEquation} />
 		</div>
 	);
 }

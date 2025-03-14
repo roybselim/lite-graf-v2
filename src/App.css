@@ -22,15 +22,96 @@
 	width: 2px;
 	height: 2px;
 	background-color: darkolivegreen;
+	box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .coordinate {
 	position: absolute;
 	color: black;
+	font-size: 12px;
 }
 .Controls {
 	display: flex;
-	flex-direction: row;
 	position: absolute;
 	top: 0px;
 	left: 0px;
+	width: 100%;
+}
+.controlsContainer {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	padding: 4px;
+	background-color: white;
+	justify-content: space-evenly;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	flex-wrap: wrap;
+}
+.keypad {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.calculator {
+	position: absolute;
+	bottom: 0px;
+	right: 0px;
+	background-color: gray;
+	margin: 10px;
+	margin-top: 40px;
+	border-radius: 10px;
+	padding: 10px;
+	padding-top: 0px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.displayContainer {
+	border: 1px solid black;
+	border-radius: 5px;
+	padding: 5px 10px;
+	padding-top: 0px;
+	min-height: 50px;
+	background-color: #dddddd;
+}
+.blink {
+	animation: blinker 1s linear infinite;
+}
+@keyframes blinker {
+	50% {
+		opacity: 0;
+	}
+}
+.bigButton {
+	padding: 10px 5px;
+	border-radius: 5px;
+	font-size: 20px;
+	min-width: 40px;
+}
+.smallButton {
+	border: 1px solid #111111;
+	border-radius: 7px;
+	font-size: 15px;
+	min-width: 35px;
+	height: 30px;
+	color: white;
+	background-color: #3c3c3c;
+}
+.button {
+	border: 1px solid #111111;
+	padding: 5px 5px;
+	border-radius: 7px;
+	font-size: 17px;
+	width: 45px;
+	justify-content: center;
+	border-bottom-left-radius: 12px;
+	border-bottom-right-radius: 12px;
+}
+.row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	gap: 5px;
+}
+.controlContainer {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }

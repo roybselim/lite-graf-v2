@@ -6,31 +6,44 @@ interface IGraphProps {
 	horizontalShift: number;
 	verticalShift: number;
 	graphType: string;
+	equation: any;
 }
 
 function Graph(_props: IGraphProps) {
-	const { unitSize, horizontalShift, verticalShift, graphType } = _props;
+	const {
+		unitSize,
+		horizontalShift,
+		verticalShift,
+		graphType,
+		equation = 'Equation',
+	} = _props;
 
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
 	const horizontalCenter = (height - verticalShift) / 2;
 	let integrand = 0;
 
-	const getValueAtPoint = (eq: string, point: number): number => {
-		const exactPoint = eval(eq.replace(/x/g, (point / unitSize).toString()));
-		switch (graphType) {
-			case 'Equation':
-				return exactPoint;
-			case 'Differential':
-				const pointPlusOne = eval(
-					eq.replace(/x/g, ((point + 1) / unitSize).toString())
-				);
-				return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
-			case 'Integral':
-				integrand += exactPoint;
-				return integrand / unitSize;
-			default:
-				return 0;
+	const getValueAtPoint = (point: number): number => {
+		try {
+			const exactPoint = eval(
+				equation.replace(/x/g, (point / unitSize).toString())
+			);
+			switch (graphType) {
+				case 'Equation':
+					return exactPoint;
+				case 'Differentiate':
+					const pointPlusOne = eval(
+						equation.replace(/x/g, ((point + 1) / unitSize).toString())
+					);
+					return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
+				case 'Integrate':
+					integrand += exactPoint;
+					return integrand / unitSize;
+				default:
+					return 0;
+			}
+		} catch (_e) {
+			return 0;
 		}
 	};
 
@@ -55,7 +68,7 @@ function Graph(_props: IGraphProps) {
 						key={`${Math.random() * Date.now()}`}
 						className="coordinate"
 						style={{
-							left: `${i}px`,
+							left: `${i + 3}px`,
 							top: `${horizontalCenter}px`,
 						}}
 					>
@@ -78,7 +91,7 @@ function Graph(_props: IGraphProps) {
 						key={`${Math.random() * Date.now()}`}
 						className="coordinate"
 						style={{
-							left: `${verticalCenter}px`,
+							left: `${verticalCenter + 3}px`,
 							top: `${i}px`,
 						}}
 					>
@@ -87,7 +100,7 @@ function Graph(_props: IGraphProps) {
 				);
 			}
 			const pointAtValue =
-				getValueAtPoint('Math.sin(x)', i - verticalCenter) * unitSize +
+				getValueAtPoint(i - verticalCenter) * unitSize +
 				(horizontalCenter + verticalShift);
 			if (pointAtValue >= 0) {
 				contents.push(
@@ -97,6 +110,11 @@ function Graph(_props: IGraphProps) {
 						style={{
 							left: `${i}px`,
 							bottom: `${pointAtValue}px`,
+							backgroundColor: {
+								Equation: 'green',
+								Differentiate: 'blue',
+								Integrate: 'red',
+							}[graphType],
 						}}
 					/>
 				);
