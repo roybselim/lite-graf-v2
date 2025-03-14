@@ -33,7 +33,7 @@ function Graph(_props: IGraphProps) {
 					return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
 				case 'Integrate':
 					integrand += exactPoint;
-					return integrand / unitSize;
+					return integrand / (unitSize * 2);
 				default:
 					return 0;
 			}
