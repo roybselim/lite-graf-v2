@@ -11,6 +11,7 @@ function App() {
 	const [verticalShift, setVerticalShift] = useState(VERTICAL_SHIFT);
 	const [graphType, setGraphType] = useState('Equation');
 	const [equation, setEquation] = useState<string[]>([]);
+	const [ans, setAns] = useState('');
 
 	return (
 		<div>
@@ -32,7 +33,12 @@ function App() {
 				setEquation={setEquation}
 				graphType={graphType}
 			/>
-			<Calculator equation={equation} setEquation={setEquation} />
+			<Calculator
+				equation={equation}
+				setEquation={setEquation}
+				ans={ans}
+				setAns={setAns}
+			/>
 		</div>
 	);
 }

@@ -10,13 +10,8 @@ interface IGraphProps {
 }
 
 function Graph(_props: IGraphProps) {
-	const {
-		unitSize,
-		horizontalShift,
-		verticalShift,
-		graphType,
-		equation = 'Equation',
-	} = _props;
+	const { unitSize, horizontalShift, verticalShift, graphType, equation } =
+		_props;
 
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
@@ -99,17 +94,23 @@ function Graph(_props: IGraphProps) {
 					</div>
 				);
 			}
-			const pointAtValue =
+			const valueAtPoint =
 				getValueAtPoint(i - verticalCenter) * unitSize +
 				(horizontalCenter + verticalShift);
-			if (pointAtValue >= 0) {
+			const valueAtPrevPoint =
+				getValueAtPoint(i + 1 - verticalCenter) * unitSize +
+				(horizontalCenter + verticalShift);
+			const length = Math.abs(valueAtPoint - valueAtPrevPoint);
+			if (valueAtPoint >= 0) {
 				contents.push(
 					<div
 						key={`${Math.random() * Date.now()}`}
 						className="equationValue"
 						style={{
+							cursor: 'pointer',
+							height: `${length + 2}px`,
 							left: `${i}px`,
-							bottom: `${pointAtValue}px`,
+							bottom: `${valueAtPoint}px`,
 							backgroundColor: {
 								Equation: 'green',
 								Differentiate: 'blue',

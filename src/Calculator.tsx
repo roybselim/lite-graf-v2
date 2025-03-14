@@ -1,21 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 import { getEquation, sanitize } from './helpers';
 
 interface ICalculatorProps {
 	equation: string[];
 	setEquation: (val: string[]) => void;
+	ans: string;
+	setAns: (val: string) => void;
 }
 
 const Calculator = (_props: ICalculatorProps) => {
-	const { equation, setEquation } = _props;
-
-	const [ans, setAns] = useState(0);
+	const { equation, setEquation, ans, setAns } = _props;
 	const [caret, setCaret] = useState(0);
 	const [prevEq, setPrevEq] = useState('');
 	const [inverse, setInverse] = useState(false);
 	const [answerMode, setAnswerMode] = useState(false);
-	// const [equation, setEquation] = useState<string[]>([]);
 
 	const concat = (val: string): void => {
 		setCaret(caret + 1);
