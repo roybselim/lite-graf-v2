@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import { getEquation, sanitize } from './helpers';
 
@@ -10,6 +10,27 @@ interface ICalculatorProps {
 }
 
 const Calculator = (_props: ICalculatorProps) => {
+	const [pressed, setPressed] = useState(false);
+	const [position, setPosition] = useState({ x: 0, y: 0 });
+	const ref = useRef<any>(null);
+
+	// Monitor changes to position state and update DOM
+	useEffect(() => {
+		if (ref.current) {
+			ref.current.style.transform = `translate(${position.x}px, ${position.y}px)`;
+		}
+	}, [position]);
+
+	// Update the current position if mouse is down
+	const onMouseMove = (event: any) => {
+		if (pressed) {
+			setPosition({
+				x: position.x + event.movementX,
+				y: position.y + event.movementY,
+			});
+		}
+	};
+
 	const { equation, setEquation, ans, setAns } = _props;
 	const [caret, setCaret] = useState(0);
 	const [prevEq, setPrevEq] = useState('');
@@ -50,17 +71,15 @@ const Calculator = (_props: ICalculatorProps) => {
 	};
 
 	return (
-		<div className="calculator">
+		<div
+			className="calculator"
+			ref={ref}
+			onMouseMove={onMouseMove}
+			onMouseDown={() => setPressed(true)}
+			onMouseUp={() => setPressed(false)}
+		>
 			<div className="keypad">
-				<div
-					style={{
-						padding: '10px',
-						backgroundColor: '#121212',
-						paddingTop: '50px',
-						borderBottomLeftRadius: '10px',
-						borderBottomRightRadius: '10px',
-					}}
-				>
+				<div className="calculatorContainer">
 					<span style={{ color: '#dddddd' }}>
 						<i>seliminds</i>
 					</span>
