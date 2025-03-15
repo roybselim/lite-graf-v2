@@ -38,15 +38,17 @@ const Calculator = (_props: ICalculatorProps) => {
 	const [answerMode, setAnswerMode] = useState(false);
 
 	const concat = (val: string): void => {
-		setCaret(caret + 1);
-		setAnswerMode(false);
-		setPrevEq('');
-		if (caret < equation.length) {
-			const newEq = [...equation];
-			newEq.splice(caret, 0, val);
-			setEquation(newEq);
-		} else {
-			setEquation([...equation, val]);
+		if (equation.length < 19) {
+			setCaret(caret + 1);
+			setAnswerMode(false);
+			setPrevEq('');
+			if (caret < equation.length) {
+				const newEq = [...equation];
+				newEq.splice(caret, 0, val);
+				setEquation(newEq);
+			} else {
+				setEquation([...equation, val]);
+			}
 		}
 	};
 
@@ -89,14 +91,25 @@ const Calculator = (_props: ICalculatorProps) => {
 						</div>
 						<div
 							style={{
-								textAlign: answerMode ? 'right' : 'left',
+								display: 'flex',
 								width: '100%',
+								overflow: 'hidden',
+								justifyContent: answerMode ? 'flex-end' : 'flex-start',
+								alignItems: 'flex-end',
+								height: '30px',
 							}}
 						>
 							{equation.map((eq, ndx) => (
 								<span
 									className={caret === ndx && !answerMode ? 'blink' : ''}
-									style={{ fontSize: '25px' }}
+									style={{
+										fontSize: `${
+											sanitize(equation.join('')).length < 13 ? 25 : 15
+										}px`,
+										fontStyle: /Math.E|x|Math.PI/.test(eq)
+											? 'italic'
+											: 'normal',
+									}}
 								>
 									{sanitize(eq)}
 								</span>
@@ -115,7 +128,7 @@ const Calculator = (_props: ICalculatorProps) => {
 						}}
 					>{`(`}</button>
 					<button className="smallButton" onClick={() => concat('Math.PI')}>
-						<i>&pi;</i>
+						<i>π</i>
 					</button>
 					<button className="smallButton" onClick={() => concat('Math.E')}>
 						<i>e</i>
@@ -134,21 +147,18 @@ const Calculator = (_props: ICalculatorProps) => {
 					>{`)`}</button>
 				</div>
 				<div className="row">
-					{['sin', 'cos', 'tan'].map((i) => (
+					{['sin', 'cos', 'tan', 'log'].map((i) => (
 						<button
 							className="smallButton"
 							key={`${i}`}
 							onClick={() => {
-								concat(inverse ? `1/(Math.${i}(` : `Math.${i}(`);
+								concat(inverse ? `1/(Math.${i}` : `Math.${i}`);
 							}}
 							value={inverse ? `1/${i}` : i}
 						>
 							{i}
 						</button>
 					))}
-					<button className="smallButton" onClick={() => concat('Math.log(')}>
-						log
-					</button>
 					<button
 						className="smallButton"
 						onClick={() => {

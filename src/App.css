@@ -71,6 +71,8 @@
 	padding-top: 0px;
 	min-height: 50px;
 	background-color: #dddddd;
+	display: flex;
+	flex-direction: column;
 }
 .blink {
 	animation: blinker 1s linear infinite;

@@ -6,7 +6,7 @@ interface IGraphProps {
 	horizontalShift: number;
 	verticalShift: number;
 	graphType: string;
-	equation: any;
+	equation: string;
 }
 
 function Graph(_props: IGraphProps) {
@@ -18,18 +18,22 @@ function Graph(_props: IGraphProps) {
 	const horizontalCenter = (height - verticalShift) / 2;
 	let integrand = 0;
 
+	const getEquation = (point: number) => {
+		return equation
+			.replace(/(?<=(\d|x))x/g, '*x')
+			.replace(/(?<=(\d|Math.E|x))Math/g, '*Math')
+			.replace(/x/g, `(${(point / unitSize).toString()})`);
+	};
+	console.log(getEquation(2));
+
 	const getValueAtPoint = (point: number): number => {
 		try {
-			const exactPoint = eval(
-				equation.replace(/x/g, (point / unitSize).toString())
-			);
+			const exactPoint = eval(getEquation(point));
 			switch (graphType) {
 				case 'Equation':
 					return exactPoint;
 				case 'Differentiate':
-					const pointPlusOne = eval(
-						equation.replace(/x/g, ((point + 1) / unitSize).toString())
-					);
+					const pointPlusOne = eval(getEquation(point + 1));
 					return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
 				case 'Integrate':
 					integrand += exactPoint;
