@@ -21,6 +21,8 @@ function App() {
 				verticalShift={verticalShift}
 				graphType={graphType}
 				equation={equation.join('')}
+				setHorizontalShift={setHorizontalShift}
+				setVerticalShift={setVerticalShift}
 			/>
 			<Controls
 				unitSize={unitSize}

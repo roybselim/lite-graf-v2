@@ -8,22 +8,39 @@ interface IGraphProps {
 	verticalShift: number;
 	graphType: string;
 	equation: string;
+	setVerticalShift: (val: number) => void;
+	setHorizontalShift: (val: number) => void;
 }
 
 function Graph(_props: IGraphProps) {
-	const { unitSize, horizontalShift, verticalShift, graphType, equation } =
-		_props;
+	const {
+		unitSize,
+		horizontalShift,
+		verticalShift,
+		graphType,
+		equation,
+		setVerticalShift,
+		setHorizontalShift,
+	} = _props;
 
 	const [showPointsTooltip, setShowPointsTooltip] = useState(true);
 	const [tooltipX, setTooltipX] = useState(0);
 	const [tooltipY, setTooltipY] = useState(0);
 	const [valueY, setValueY] = useState('');
 	const [valueX, setValueX] = useState('');
+	const [pressed, setPressed] = useState(false);
 
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
 	const horizontalCenter = (height - verticalShift) / 2;
 	let integrand = 0;
+
+	const onMouseMove = (event: any) => {
+		if (pressed) {
+			setVerticalShift(verticalShift - event.movementY * 3);
+			setHorizontalShift(horizontalShift + event.movementX * 3);
+		}
+	};
 
 	const getEquation = (point: number) => {
 		return eval(
@@ -140,7 +157,6 @@ function Graph(_props: IGraphProps) {
 						key={`${Math.random() * Date.now()}`}
 						className="equationValue"
 						style={{
-							cursor: 'pointer',
 							height: `${length + 2}px`,
 							left: `${i}px`,
 							bottom: `${valueAtPoint}px`,
@@ -158,20 +174,20 @@ function Graph(_props: IGraphProps) {
 	};
 
 	return (
-		<div className="App" style={{ width, height }}>
+		<div
+			className="App"
+			style={{ width, height }}
+			onMouseMove={onMouseMove}
+			onMouseDown={() => setPressed(true)}
+			onMouseUp={() => setPressed(false)}
+		>
 			{generateGridsCoordinatesPoints()}
 			<div
+				className="tooltip"
 				style={{
 					display: showPointsTooltip ? 'flex' : 'none',
-					position: 'absolute',
 					top: tooltipY - 180,
 					left: tooltipX - 50,
-					backgroundColor: '#b1b1b1',
-					padding: '5px',
-					borderRadius: '5px',
-					fontSize: '12px',
-					boxShadow:
-						'0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
 				}}
 			>
 				<span>{`x: ${valueX} y: ${valueY}`}</span>
