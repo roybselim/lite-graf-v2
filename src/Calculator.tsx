@@ -4,15 +4,30 @@ import { getEquation, sanitize } from './helpers';
 
 interface ICalculatorProps {
 	equation: string[];
-	setEquation: (val: string[]) => void;
-	ans: string;
-	setAns: (val: string) => void;
+	equationIndex: number;
+	graphTypes: string[];
+	setSpecificGraphType: (index: number, type: string) => void;
+	setSpecificEquation: (index: number, eqtn: string[]) => void;
+	color: string;
 }
 
 const Calculator = (_props: ICalculatorProps) => {
 	const [pressed, setPressed] = useState(false);
 	const [position, setPosition] = useState({ x: 0, y: 0 });
+	const [ans, setAns] = useState('');
 	const ref = useRef<any>(null);
+	const {
+		color,
+		graphTypes,
+		equation,
+		equationIndex,
+		setSpecificEquation,
+		setSpecificGraphType,
+	} = _props;
+	const [caret, setCaret] = useState(0);
+	const [prevEq, setPrevEq] = useState('');
+	const [inverse, setInverse] = useState(false);
+	const [answerMode, setAnswerMode] = useState(false);
 
 	// Monitor changes to position state and update DOM
 	useEffect(() => {
@@ -31,12 +46,6 @@ const Calculator = (_props: ICalculatorProps) => {
 		}
 	};
 
-	const { equation, setEquation, ans, setAns } = _props;
-	const [caret, setCaret] = useState(0);
-	const [prevEq, setPrevEq] = useState('');
-	const [inverse, setInverse] = useState(false);
-	const [answerMode, setAnswerMode] = useState(false);
-
 	const concat = (val: string): void => {
 		if (equation.length < 19) {
 			setCaret(caret + 1);
@@ -45,9 +54,9 @@ const Calculator = (_props: ICalculatorProps) => {
 			if (caret < equation.length) {
 				const newEq = [...equation];
 				newEq.splice(caret, 0, val);
-				setEquation(newEq);
+				setSpecificEquation(equationIndex, newEq);
 			} else {
-				setEquation([...equation, val]);
+				setSpecificEquation(equationIndex, [...equation, val]);
 			}
 		}
 	};
@@ -57,11 +66,11 @@ const Calculator = (_props: ICalculatorProps) => {
 		setPrevEq(getEquation(equation));
 		try {
 			const ans = eval(equation.join('')).toString().split('');
-			setEquation(ans);
+			setSpecificEquation(equationIndex, ans);
 			setCaret(0);
 			setAns(ans.join(''));
 		} catch (_e) {
-			setEquation('Syntax Error'.split(''));
+			setSpecificEquation(equationIndex, 'Syntax Error'.split(''));
 		}
 	};
 
@@ -69,7 +78,7 @@ const Calculator = (_props: ICalculatorProps) => {
 		const newEq = [...equation];
 		newEq.splice(caret - 1, 1);
 		setCaret(caret - 1);
-		setEquation(newEq);
+		setSpecificEquation(equationIndex, newEq);
 	};
 
 	return (
@@ -79,9 +88,35 @@ const Calculator = (_props: ICalculatorProps) => {
 			onMouseMove={onMouseMove}
 			onMouseDown={() => setPressed(true)}
 			onMouseUp={() => setPressed(false)}
+			style={{ bottom: 0, right: 0 + equationIndex * 270 }}
 		>
 			<div className="keypad">
-				<div className="calculatorContainer">
+				<div
+					className="calculatorContainer"
+					style={{
+						backgroundColor: color,
+					}}
+				>
+					<div
+						onClick={() => {
+							// TO DO DELETE
+						}}
+						style={{
+							display: 'none',
+							backgroundColor: 'white',
+							position: 'absolute',
+							top: 10,
+							right: 20,
+							borderRadius: 20,
+							width: 20,
+							height: 20,
+							justifyContent: 'center',
+							alignItems: 'center',
+							cursor: 'not-allowed',
+						}}
+					>
+						<span style={{}}>X</span>
+					</div>
 					<span style={{ color: '#dddddd' }}>
 						<i>seliminds</i>
 					</span>
@@ -119,6 +154,23 @@ const Calculator = (_props: ICalculatorProps) => {
 							)}
 						</div>
 					</div>
+				</div>
+				<div className="row">
+					{['Equation', 'Differentiate', 'Integrate'].map((val) => (
+						<button
+							className="operation"
+							style={{
+								backgroundColor:
+									graphTypes[equationIndex] === val ? 'black' : 'white',
+								color: graphTypes[equationIndex] === val ? 'white' : 'black',
+							}}
+							onClick={() => {
+								setSpecificGraphType(equationIndex, val);
+							}}
+						>
+							{val === 'Equation' ? 'Graph' : val}
+						</button>
+					))}
 				</div>
 				<div className="row">
 					<button
@@ -190,7 +242,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					<button
 						className="button bigButton"
 						onClick={() => {
-							setEquation([]);
+							setSpecificEquation(equationIndex, ['']);
 							setCaret(0);
 							setPrevEq('');
 						}}

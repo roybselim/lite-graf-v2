@@ -6,10 +6,11 @@ interface IGraphProps {
 	unitSize: number;
 	horizontalShift: number;
 	verticalShift: number;
-	graphType: string;
-	equation: string;
+	graphTypes: string[];
+	equations: string[];
 	setVerticalShift: (val: number) => void;
 	setHorizontalShift: (val: number) => void;
+	colors: string[];
 }
 
 function Graph(_props: IGraphProps) {
@@ -17,10 +18,11 @@ function Graph(_props: IGraphProps) {
 		unitSize,
 		horizontalShift,
 		verticalShift,
-		graphType,
-		equation,
+		graphTypes,
 		setVerticalShift,
 		setHorizontalShift,
+		equations,
+		colors,
 	} = _props;
 
 	const [showPointsTooltip, setShowPointsTooltip] = useState(true);
@@ -42,7 +44,7 @@ function Graph(_props: IGraphProps) {
 		}
 	};
 
-	const getEquation = (point: number) => {
+	const getEquation = (equation: any, point: number) => {
 		return eval(
 			equation
 				.replace(/(?<=(\d|x))x/g, '*x')
@@ -51,14 +53,18 @@ function Graph(_props: IGraphProps) {
 		);
 	};
 
-	const getValueAtPoint = (point: number): number => {
+	const getValueAtPoint = (
+		equation: any,
+		ndx: number,
+		point: number
+	): number => {
 		try {
-			const exactPoint = getEquation(point);
-			switch (graphType) {
+			const exactPoint = getEquation(equation, point);
+			switch (graphTypes[ndx]) {
 				case 'Equation':
 					return exactPoint;
 				case 'Differentiate':
-					const pointPlusOne = getEquation(point + 1);
+					const pointPlusOne = getEquation(equation, point + 1);
 					return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
 				case 'Integrate':
 					integrand += exactPoint;
@@ -130,45 +136,43 @@ function Graph(_props: IGraphProps) {
 					</div>
 				);
 			}
-			const valueAtPoint =
-				getValueAtPoint(i - verticalCenter) * unitSize +
-				(horizontalCenter + verticalShift);
-			const valueAtPrevPoint =
-				getValueAtPoint(i + 1 - verticalCenter) * unitSize +
-				(horizontalCenter + verticalShift);
-			const length = Math.abs(valueAtPoint - valueAtPrevPoint);
-			if (valueAtPoint >= 0) {
-				contents.push(
-					<div
-						onMouseOver={(event) => {
-							setShowPointsTooltip(true);
-							showPoints(
-								event,
-								(
-									valueAtPoint / unitSize -
-									(horizontalCenter + verticalShift) / unitSize
-								).toFixed(2),
-								((i - verticalCenter) / unitSize).toFixed(2)
-							);
-						}}
-						onMouseOut={() => {
-							setShowPointsTooltip(false);
-						}}
-						key={`${Math.random() * Date.now()}`}
-						className="equationValue"
-						style={{
-							height: `${length + 2}px`,
-							left: `${i}px`,
-							bottom: `${valueAtPoint}px`,
-							backgroundColor: {
-								Equation: 'green',
-								Differentiate: 'blue',
-								Integrate: 'red',
-							}[graphType],
-						}}
-					/>
-				);
-			}
+			equations.forEach((eq, _ndx) => {
+				const valueAtPoint =
+					getValueAtPoint(eq, _ndx, i - verticalCenter) * unitSize +
+					(horizontalCenter + verticalShift);
+				const valueAtPrevPoint =
+					getValueAtPoint(eq, _ndx, i + 1 - verticalCenter) * unitSize +
+					(horizontalCenter + verticalShift);
+				const length = Math.abs(valueAtPoint - valueAtPrevPoint);
+				if (valueAtPoint >= 0) {
+					contents.push(
+						<div
+							onMouseOver={(event) => {
+								setShowPointsTooltip(true);
+								showPoints(
+									event,
+									(
+										valueAtPoint / unitSize -
+										(horizontalCenter + verticalShift) / unitSize
+									).toFixed(2),
+									((i - verticalCenter) / unitSize).toFixed(2)
+								);
+							}}
+							onMouseOut={() => {
+								setShowPointsTooltip(false);
+							}}
+							key={`${Math.random() * Date.now()}`}
+							className="equationValue"
+							style={{
+								height: `${length + 2}px`,
+								left: `${i}px`,
+								bottom: `${valueAtPoint}px`,
+								backgroundColor: colors[_ndx],
+							}}
+						/>
+					);
+				}
+			});
 		}
 		return contents;
 	};

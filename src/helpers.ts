@@ -10,3 +10,10 @@ export const sanitize = (val: string) => {
 export const getEquation = (equation: string[]) => {
 	return sanitize(equation.join(''));
 };
+
+export function randomRGB() {
+	var o = Math.round,
+		r = Math.random,
+		s = 255;
+	return 'rgb(' + o(r() * s) + ',' + o(r() * s) + ',' + o(r() * s) + ')';
+}
