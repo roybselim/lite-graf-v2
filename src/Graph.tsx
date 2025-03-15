@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './App.css';
 import useWindowDimensions from './useWindowDimensions';
 
@@ -13,27 +14,34 @@ function Graph(_props: IGraphProps) {
 	const { unitSize, horizontalShift, verticalShift, graphType, equation } =
 		_props;
 
+	const [showPointsTooltip, setShowPointsTooltip] = useState(true);
+	const [tooltipX, setTooltipX] = useState(0);
+	const [tooltipY, setTooltipY] = useState(0);
+	const [valueY, setValueY] = useState('');
+	const [valueX, setValueX] = useState('');
+
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
 	const horizontalCenter = (height - verticalShift) / 2;
 	let integrand = 0;
 
 	const getEquation = (point: number) => {
-		return equation
-			.replace(/(?<=(\d|x))x/g, '*x')
-			.replace(/(?<=(\d|Math.E|x))Math/g, '*Math')
-			.replace(/x/g, `(${(point / unitSize).toString()})`);
+		return eval(
+			equation
+				.replace(/(?<=(\d|x))x/g, '*x')
+				.replace(/(?<=(\d|Math.E|x))Math/g, '*Math')
+				.replace(/x/g, `(${(point / unitSize).toString()})`)
+		);
 	};
-	console.log(getEquation(2));
 
 	const getValueAtPoint = (point: number): number => {
 		try {
-			const exactPoint = eval(getEquation(point));
+			const exactPoint = getEquation(point);
 			switch (graphType) {
 				case 'Equation':
 					return exactPoint;
 				case 'Differentiate':
-					const pointPlusOne = eval(getEquation(point + 1));
+					const pointPlusOne = getEquation(point + 1);
 					return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
 				case 'Integrate':
 					integrand += exactPoint;
@@ -44,6 +52,13 @@ function Graph(_props: IGraphProps) {
 		} catch (_e) {
 			return 0;
 		}
+	};
+
+	const showPoints = (event: any, y: string, x: string) => {
+		setTooltipX(event.screenX);
+		setTooltipY(event.screenY);
+		setValueY(y);
+		setValueX(x);
 	};
 
 	const generateGridsCoordinatesPoints = () => {
@@ -108,6 +123,20 @@ function Graph(_props: IGraphProps) {
 			if (valueAtPoint >= 0) {
 				contents.push(
 					<div
+						onMouseOver={(event) => {
+							setShowPointsTooltip(true);
+							showPoints(
+								event,
+								(
+									valueAtPoint / unitSize -
+									(horizontalCenter + verticalShift) / unitSize
+								).toFixed(2),
+								((i - verticalCenter) / unitSize).toFixed(2)
+							);
+						}}
+						onMouseOut={() => {
+							setShowPointsTooltip(false);
+						}}
 						key={`${Math.random() * Date.now()}`}
 						className="equationValue"
 						style={{
@@ -131,6 +160,22 @@ function Graph(_props: IGraphProps) {
 	return (
 		<div className="App" style={{ width, height }}>
 			{generateGridsCoordinatesPoints()}
+			<div
+				style={{
+					display: showPointsTooltip ? 'flex' : 'none',
+					position: 'absolute',
+					top: tooltipY - 180,
+					left: tooltipX - 50,
+					backgroundColor: '#b1b1b1',
+					padding: '5px',
+					borderRadius: '5px',
+					fontSize: '12px',
+					boxShadow:
+						'0 1px 2px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+				}}
+			>
+				<span>{`x: ${valueX} y: ${valueY}`}</span>
+			</div>
 		</div>
 	);
 }
