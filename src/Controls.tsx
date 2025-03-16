@@ -1,38 +1,32 @@
 import { useState } from 'react';
 import useWindowDimensions from './useWindowDimensions';
+import useStore from './store';
 
-interface IControlProps {
-	unitSize: number;
-	setUnitSize: (val: number) => void;
-	calculators: number;
-	setSpecificEquation: (index: number, eqtn: string[]) => void;
-	setSpecificGraphType: (index: number, type: string) => void;
-	addRemoveCalculator: (val: boolean) => void;
-}
+interface IControlProps {}
 
 const Controls = (_props: IControlProps) => {
-	const {
-		unitSize,
-		setUnitSize,
-		calculators,
-		setSpecificEquation,
-		setSpecificGraphType,
-		addRemoveCalculator,
-	} = _props;
 	const { width, height } = useWindowDimensions();
 	const minDim = Math.min(width, height);
 	const [calculator, setCalculator] = useState(0);
+	const {
+		addCalculator,
+		removeCalculator,
+		editCalculator,
+		calculators,
+		unitSize,
+		setUnitSize,
+	} = useStore((state) => state);
 
 	return (
 		<div className="Controls">
 			<div className="controlsContainer">
 				<div className="controlContainer">
-					<span>&nbsp;{`${calculators}`}</span>
+					<span>&nbsp;{`${calculators.length}`}</span>
 					<span>&nbsp;calculator(s)&nbsp;</span>
 					<button
 						style={{ marginRight: 10 }}
 						onClick={() => {
-							addRemoveCalculator(true);
+							addCalculator();
 						}}
 					>
 						+
@@ -40,7 +34,8 @@ const Controls = (_props: IControlProps) => {
 					<button
 						style={{ padding: '1px 8px' }}
 						onClick={() => {
-							addRemoveCalculator(false);
+							if (calculators.length)
+								removeCalculator(calculators[calculators.length - 1].id);
 						}}
 					>
 						-
@@ -52,28 +47,30 @@ const Controls = (_props: IControlProps) => {
 						onChange={(event) => {
 							switch (event.currentTarget.value) {
 								case 'no graph':
-									setSpecificEquation(calculator, []);
+									editCalculator(calculator, { equation: [] });
 									break;
 								case 'graph a linear function':
-									setSpecificEquation(calculator, ['x']);
+									editCalculator(calculator, { equation: ['x'] });
 									break;
 								case 'graph a quadratic function':
-									setSpecificEquation(calculator, ['(', 'x', ')', '**', '2']);
+									editCalculator(calculator, { equation: ['x', '**', '2'] });
 									break;
 								case 'graph a cubic function':
-									setSpecificEquation(calculator, ['(', 'x', ')', '**', '3']);
+									editCalculator(calculator, { equation: ['x', '**', '3'] });
 									break;
 								case 'graph an exponential function':
-									setSpecificEquation(calculator, ['Math.E', '**', 'x']);
+									editCalculator(calculator, {
+										equation: ['Math.E', '^', 'x'],
+									});
 									break;
 								case 'graph a logarithmic function':
-									setSpecificEquation(calculator, ['Math.log(', 'x', ')']);
+									editCalculator(calculator, { equation: ['Math.log', 'x'] });
 									break;
 								case 'graph a sine wave function':
-									setSpecificEquation(calculator, ['Math.sin(', 'x', ')']);
+									editCalculator(calculator, { equation: ['Math.sin', 'x'] });
 									break;
 								case 'graph a cosine wave function':
-									setSpecificEquation(calculator, ['Math.cos(', 'x', ')']);
+									editCalculator(calculator, { equation: ['Math.cos', 'x'] });
 									break;
 								default:
 									break;
@@ -95,9 +92,10 @@ const Controls = (_props: IControlProps) => {
 							setCalculator(parseInt(event.currentTarget.value));
 						}}
 					>
-						{new Array(calculators).fill('').map((_item, ndx) => (
+						{calculators.map((calc, ndx: number) => (
 							<option
-								value={ndx}
+								key={`${ndx}-${calc.id}`}
+								value={calc.id}
 								style={{ backgroundColor: 'red' }}
 							>{`on calculator ${ndx + 1}`}</option>
 						))}
@@ -122,13 +120,13 @@ const Controls = (_props: IControlProps) => {
 						onChange={(event) => {
 							switch (event.currentTarget.value) {
 								case 'Equation':
-									setSpecificGraphType(calculator, 'Equation');
+									editCalculator(calculator, { graphType: 'Equation' });
 									break;
 								case 'Differentiate':
-									setSpecificGraphType(calculator, 'Differentiate');
+									editCalculator(calculator, { graphType: 'Differentiate' });
 									break;
 								case 'Integrate':
-									setSpecificGraphType(calculator, 'Integrate');
+									editCalculator(calculator, { graphType: 'Integrate' });
 									break;
 								default:
 									break;

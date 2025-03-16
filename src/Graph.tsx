@@ -2,36 +2,26 @@ import { useState } from 'react';
 import './App.css';
 import useWindowDimensions from './useWindowDimensions';
 import { parseEquation } from './helpers';
+import useStore, { ICalculator } from './store';
 
-interface IGraphProps {
-	unitSize: number;
-	horizontalShift: number;
-	verticalShift: number;
-	graphTypes: string[];
-	equations: string[];
-	setVerticalShift: (val: number) => void;
-	setHorizontalShift: (val: number) => void;
-	colors: string[];
-}
+interface IGraphProps {}
 
 function Graph(_props: IGraphProps) {
-	const {
-		unitSize,
-		horizontalShift,
-		verticalShift,
-		graphTypes,
-		setVerticalShift,
-		setHorizontalShift,
-		equations,
-		colors,
-	} = _props;
-
 	const [showPointsTooltip, setShowPointsTooltip] = useState(true);
 	const [tooltipX, setTooltipX] = useState(0);
 	const [tooltipY, setTooltipY] = useState(0);
 	const [valueY, setValueY] = useState('');
 	const [valueX, setValueX] = useState('');
 	const [pressed, setPressed] = useState(false);
+
+	const {
+		calculators,
+		unitSize,
+		horizontalShift,
+		verticalShift,
+		setVerticalShift,
+		setHorizontalShift,
+	} = useStore((state) => state);
 
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
@@ -54,18 +44,15 @@ function Graph(_props: IGraphProps) {
 		);
 	};
 
-	const getValueAtPoint = (
-		equation: any,
-		ndx: number,
-		point: number
-	): number => {
+	const getValueAtPoint = (calc: ICalculator, point: number): number => {
 		try {
-			const exactPoint = getEquation(equation, point);
-			switch (graphTypes[ndx]) {
+			const { equation, graphType } = calc;
+			const exactPoint = getEquation(equation.join(''), point);
+			switch (graphType) {
 				case 'Equation':
 					return exactPoint;
 				case 'Differentiate':
-					const pointPlusOne = getEquation(equation, point + 1);
+					const pointPlusOne = getEquation(equation.join(''), point + 1);
 					return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
 				case 'Integrate':
 					integrand += exactPoint;
@@ -137,12 +124,12 @@ function Graph(_props: IGraphProps) {
 					</div>
 				);
 			}
-			equations.forEach((eq, _ndx) => {
+			calculators.forEach((calc) => {
 				const valueAtPoint =
-					getValueAtPoint(eq, _ndx, i - verticalCenter) * unitSize +
+					getValueAtPoint(calc, i - verticalCenter) * unitSize +
 					(horizontalCenter + verticalShift);
 				const valueAtPrevPoint =
-					getValueAtPoint(eq, _ndx, i + 1 - verticalCenter) * unitSize +
+					getValueAtPoint(calc, i + 1 - verticalCenter) * unitSize +
 					(horizontalCenter + verticalShift);
 				const length = Math.abs(valueAtPoint - valueAtPrevPoint);
 				if (valueAtPoint >= 0) {
@@ -168,7 +155,7 @@ function Graph(_props: IGraphProps) {
 								height: `${length + 2}px`,
 								left: `${i}px`,
 								bottom: `${valueAtPoint}px`,
-								backgroundColor: colors[_ndx],
+								backgroundColor: calc.color,
 							}}
 						/>
 					);

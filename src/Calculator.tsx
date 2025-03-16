@@ -1,15 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
 import { getEquation, parseEquation, sanitize } from './helpers';
+import useStore, { ICalculator } from './store';
 
 interface ICalculatorProps {
-	equation: string[];
-	equationIndex: number;
-	graphTypes: string[];
-	setSpecificGraphType: (index: number, type: string) => void;
-	setSpecificEquation: (index: number, eqtn: string[]) => void;
-	color: string;
-	addRemoveCalculator: (add: boolean, index: number) => void;
+	calculator: ICalculator;
 }
 
 const Calculator = (_props: ICalculatorProps) => {
@@ -17,19 +12,14 @@ const Calculator = (_props: ICalculatorProps) => {
 	const [position, setPosition] = useState({ x: 0, y: 0 });
 	const [ans, setAns] = useState('');
 	const ref = useRef<any>(null);
-	const {
-		color,
-		graphTypes,
-		equation,
-		equationIndex,
-		setSpecificEquation,
-		setSpecificGraphType,
-		addRemoveCalculator,
-	} = _props;
 	const [caret, setCaret] = useState(0);
 	const [prevEq, setPrevEq] = useState('');
 	const [inverse, setInverse] = useState(false);
 	const [answerMode, setAnswerMode] = useState(false);
+	const { calculator } = _props;
+
+	const { removeCalculator, editCalculator } = useStore((state) => state);
+	const { equation = [], color, graphType } = calculator;
 
 	// Monitor changes to position state and update DOM
 	useEffect(() => {
@@ -56,9 +46,9 @@ const Calculator = (_props: ICalculatorProps) => {
 			if (caret < equation.length) {
 				const newEq = [...equation];
 				newEq.splice(caret, 0, val);
-				setSpecificEquation(equationIndex, newEq);
+				editCalculator(calculator.id, { equation: newEq });
 			} else {
-				setSpecificEquation(equationIndex, [...equation, val]);
+				editCalculator(calculator.id, { equation: [...equation, val] });
 			}
 		}
 	};
@@ -70,11 +60,11 @@ const Calculator = (_props: ICalculatorProps) => {
 			const ans = eval(parseEquation(equation.join('')))
 				.toString()
 				.split('');
-			setSpecificEquation(equationIndex, ans);
+			editCalculator(calculator.id, { equation: ans });
 			setCaret(0);
 			setAns(ans.join(''));
 		} catch (_e) {
-			setSpecificEquation(equationIndex, 'Syntax Error'.split(''));
+			editCalculator(calculator.id, { equation: 'Syntax Error'.split('') });
 		}
 	};
 
@@ -82,7 +72,7 @@ const Calculator = (_props: ICalculatorProps) => {
 		const newEq = [...equation];
 		newEq.splice(caret - 1, 1);
 		setCaret(caret - 1);
-		setSpecificEquation(equationIndex, newEq);
+		editCalculator(calculator.id, { equation: newEq });
 	};
 
 	return (
@@ -92,7 +82,7 @@ const Calculator = (_props: ICalculatorProps) => {
 			onMouseMove={onMouseMove}
 			onMouseDown={() => setPressed(true)}
 			onMouseUp={() => setPressed(false)}
-			style={{ bottom: 0, right: 0 + equationIndex * 270 }}
+			style={{ bottom: 0, right: 0 + calculator.id * 270 }}
 		>
 			<div className="keypad">
 				<div
@@ -103,7 +93,7 @@ const Calculator = (_props: ICalculatorProps) => {
 				>
 					<div
 						onClick={() => {
-							addRemoveCalculator(false, equationIndex);
+							removeCalculator(calculator.id);
 						}}
 						className="removeCalc"
 					>
@@ -128,6 +118,7 @@ const Calculator = (_props: ICalculatorProps) => {
 						>
 							{equation.map((eq, ndx) => (
 								<span
+									key={`${eq}-${ndx}`}
 									className={caret === ndx && !answerMode ? 'blink' : ''}
 									style={{
 										fontSize: `${
@@ -150,14 +141,14 @@ const Calculator = (_props: ICalculatorProps) => {
 				<div className="row">
 					{['Equation', 'Differentiate', 'Integrate'].map((val) => (
 						<button
+							key={val}
 							className="operation"
 							style={{
-								backgroundColor:
-									graphTypes[equationIndex] === val ? 'black' : 'white',
-								color: graphTypes[equationIndex] === val ? 'white' : 'black',
+								backgroundColor: graphType === val ? 'black' : 'white',
+								color: graphType === val ? 'white' : 'black',
 							}}
 							onClick={() => {
-								setSpecificGraphType(equationIndex, val);
+								editCalculator(calculator.id, { graphType: val });
 							}}
 						>
 							{val === 'Equation' ? 'Graph' : val}
@@ -248,7 +239,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					{['7', '8', '9'].map((i) => (
 						<button
 							className="button"
-							key={i}
+							key={`button${i}`}
 							onClick={() => {
 								concat(i);
 							}}
@@ -262,7 +253,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					<button
 						className="button bigButton"
 						onClick={() => {
-							setSpecificEquation(equationIndex, ['']);
+							editCalculator(calculator.id, { equation: [''] });
 							setCaret(0);
 							setPrevEq('');
 						}}
@@ -274,7 +265,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					{['4', '5', '6'].map((i) => (
 						<button
 							className="button"
-							key={i}
+							key={`button${i}`}
 							onClick={() => {
 								concat(i);
 							}}
@@ -293,7 +284,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					{['1', '2', '3', '+', '-'].map((i) => (
 						<button
 							className="button"
-							key={i}
+							key={`button${i}`}
 							onClick={() => {
 								concat(i);
 							}}
@@ -306,7 +297,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					{['0', '.'].map((i) => (
 						<button
 							className="button"
-							key={i}
+							key={`button${i}`}
 							onClick={() => {
 								concat(i);
 							}}
