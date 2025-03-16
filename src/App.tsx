@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './App.css';
 import {
 	CALCULATORS,
@@ -15,7 +15,6 @@ function App() {
 	const [unitSize, setUnitSize] = useState(UNIT_SIZE);
 	const [horizontalShift, setHorizontalShift] = useState(HORIZONTAL_SHIFT);
 	const [verticalShift, setVerticalShift] = useState(VERTICAL_SHIFT);
-	const [calculators, setCalculators] = useState(CALCULATORS);
 	const [graphTypes, setGraphTypes] = useState<string[]>(
 		new Array(CALCULATORS).fill('Equation')
 	);
@@ -27,18 +26,26 @@ function App() {
 		'#121212',
 	]);
 
-	useEffect(() => {
-		if (equation.length > calculators) {
-			setGraphTypes(graphTypes.slice(0, -1));
-			setEquation(equation.slice(0, -1));
-			setColors(colors.slice(0, -1));
-		} else if (equation.length < calculators) {
-			setGraphTypes([...graphTypes, 'Equation']);
-			setEquation([...equation, []]);
-			setColors([...colors, randomRGB()]);
+	const addRemoveCalculator = (add: boolean, index: number = -1) => {
+		function remove<T>(_eq: T, ndx: number) {
+			return ndx !== index;
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [calculators]);
+		if (add) {
+			setEquation([...equation, []]);
+			setGraphTypes([...graphTypes, 'Equation']);
+			setColors([...colors, randomRGB()]);
+		} else {
+			if (index > -1) {
+				setEquation([...equation].filter(remove<string[]>));
+				setGraphTypes([...graphTypes].filter(remove<string>));
+				setColors([...colors].filter(remove<string>));
+			} else {
+				setEquation(equation.slice(0, -1));
+				setGraphTypes(graphTypes.slice(0, -1));
+				setColors(colors.slice(0, -1));
+			}
+		}
+	};
 
 	const setSpecificEquation = (ndx: number, eqtn: string[]) => {
 		setEquation(
@@ -71,11 +78,10 @@ function App() {
 				colors={colors}
 			/>
 			<Controls
-				colors={colors}
 				unitSize={unitSize}
 				setUnitSize={setUnitSize}
-				calculators={calculators}
-				setCalculators={setCalculators}
+				calculators={equation.length}
+				addRemoveCalculator={addRemoveCalculator}
 				setSpecificEquation={setSpecificEquation}
 				setSpecificGraphType={setSpecificGraphType}
 			/>
@@ -87,6 +93,7 @@ function App() {
 					color={colors[eqnNdx]}
 					setSpecificEquation={setSpecificEquation}
 					setSpecificGraphType={setSpecificGraphType}
+					addRemoveCalculator={addRemoveCalculator}
 				/>
 			))}
 		</div>

@@ -2,24 +2,22 @@ import { useState } from 'react';
 import useWindowDimensions from './useWindowDimensions';
 
 interface IControlProps {
-	colors: string[];
 	unitSize: number;
 	setUnitSize: (val: number) => void;
 	calculators: number;
-	setCalculators: (val: number) => void;
 	setSpecificEquation: (index: number, eqtn: string[]) => void;
 	setSpecificGraphType: (index: number, type: string) => void;
+	addRemoveCalculator: (val: boolean) => void;
 }
 
 const Controls = (_props: IControlProps) => {
 	const {
-		colors,
 		unitSize,
 		setUnitSize,
 		calculators,
-		setCalculators,
 		setSpecificEquation,
 		setSpecificGraphType,
+		addRemoveCalculator,
 	} = _props;
 	const { width, height } = useWindowDimensions();
 	const minDim = Math.min(width, height);
@@ -34,7 +32,7 @@ const Controls = (_props: IControlProps) => {
 					<button
 						style={{ marginRight: 10 }}
 						onClick={() => {
-							setCalculators(calculators + 1);
+							addRemoveCalculator(true);
 						}}
 					>
 						+
@@ -42,7 +40,7 @@ const Controls = (_props: IControlProps) => {
 					<button
 						style={{ padding: '1px 8px' }}
 						onClick={() => {
-							if (calculators > 0) setCalculators(calculators - 1);
+							addRemoveCalculator(false);
 						}}
 					>
 						-

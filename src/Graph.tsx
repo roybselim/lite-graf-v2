@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import useWindowDimensions from './useWindowDimensions';
+import { parseEquation } from './helpers';
 
 interface IGraphProps {
 	unitSize: number;
@@ -46,10 +47,10 @@ function Graph(_props: IGraphProps) {
 
 	const getEquation = (equation: any, point: number) => {
 		return eval(
-			equation
-				.replace(/(?<=(\d|x))x/g, '*x')
-				.replace(/(?<=(\d|Math.E|x))Math/g, '*Math')
-				.replace(/x/g, `(${(point / unitSize).toString()})`)
+			parseEquation(equation).replace(
+				/x/g,
+				`(${(point / unitSize).toString()})`
+			)
 		);
 	};
 

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import { getEquation, sanitize } from './helpers';
+import { getEquation, parseEquation, sanitize } from './helpers';
 
 interface ICalculatorProps {
 	equation: string[];
@@ -9,6 +9,7 @@ interface ICalculatorProps {
 	setSpecificGraphType: (index: number, type: string) => void;
 	setSpecificEquation: (index: number, eqtn: string[]) => void;
 	color: string;
+	addRemoveCalculator: (add: boolean, index: number) => void;
 }
 
 const Calculator = (_props: ICalculatorProps) => {
@@ -23,6 +24,7 @@ const Calculator = (_props: ICalculatorProps) => {
 		equationIndex,
 		setSpecificEquation,
 		setSpecificGraphType,
+		addRemoveCalculator,
 	} = _props;
 	const [caret, setCaret] = useState(0);
 	const [prevEq, setPrevEq] = useState('');
@@ -65,7 +67,9 @@ const Calculator = (_props: ICalculatorProps) => {
 		setAnswerMode(true);
 		setPrevEq(getEquation(equation));
 		try {
-			const ans = eval(equation.join('')).toString().split('');
+			const ans = eval(parseEquation(equation.join('')))
+				.toString()
+				.split('');
 			setSpecificEquation(equationIndex, ans);
 			setCaret(0);
 			setAns(ans.join(''));
@@ -99,21 +103,9 @@ const Calculator = (_props: ICalculatorProps) => {
 				>
 					<div
 						onClick={() => {
-							// TO DO DELETE
+							addRemoveCalculator(false, equationIndex);
 						}}
-						style={{
-							display: 'none',
-							backgroundColor: 'white',
-							position: 'absolute',
-							top: 10,
-							right: 20,
-							borderRadius: 20,
-							width: 20,
-							height: 20,
-							justifyContent: 'center',
-							alignItems: 'center',
-							cursor: 'not-allowed',
-						}}
+						className="removeCalc"
 					>
 						<span style={{}}>X</span>
 					</div>
@@ -171,6 +163,16 @@ const Calculator = (_props: ICalculatorProps) => {
 							{val === 'Equation' ? 'Graph' : val}
 						</button>
 					))}
+					<button
+						style={{
+							backgroundColor: inverse ? 'black' : 'white',
+							color: inverse ? 'white' : 'black',
+						}}
+						className="operation"
+						onClick={() => setInverse(!inverse)}
+					>
+						1/x
+					</button>
 				</div>
 				<div className="row">
 					<button
@@ -179,14 +181,32 @@ const Calculator = (_props: ICalculatorProps) => {
 							concat('(');
 						}}
 					>{`(`}</button>
-					<button className="smallButton" onClick={() => concat('Math.PI')}>
-						<i>π</i>
+					<button
+						className="smallButton"
+						onClick={() => concat(inverse ? '1/(Math.PI)' : 'Math.PI')}
+					>
+						{inverse && <div className="inverseSign">1</div>}
+						<div style={{ fontSize: inverse ? 10 : 15, fontStyle: 'italic' }}>
+							π
+						</div>
 					</button>
-					<button className="smallButton" onClick={() => concat('Math.E')}>
-						<i>e</i>
+					<button
+						className="smallButton"
+						onClick={() => concat(inverse ? '1/(Math.E)' : 'Math.E')}
+					>
+						{inverse && <div className="inverseSign">1</div>}
+						<div style={{ fontSize: inverse ? 10 : 15, fontStyle: 'italic' }}>
+							e
+						</div>
 					</button>
-					<button className="smallButton" onClick={() => concat('x')}>
-						<i>x</i>
+					<button
+						className="smallButton"
+						onClick={() => concat(inverse ? '1/(x)' : 'x')}
+					>
+						{inverse && <div className="inverseSign">1</div>}
+						<div style={{ fontSize: inverse ? 10 : 15, fontStyle: 'italic' }}>
+							x
+						</div>
 					</button>
 					<button className="smallButton" onClick={() => concat('Math.sqrt(')}>
 						√
@@ -201,14 +221,14 @@ const Calculator = (_props: ICalculatorProps) => {
 				<div className="row">
 					{['sin', 'cos', 'tan', 'log'].map((i) => (
 						<button
-							className="smallButton"
+							className="smallButton inverse"
 							key={`${i}`}
 							onClick={() => {
 								concat(inverse ? `1/(Math.${i}` : `Math.${i}`);
 							}}
-							value={inverse ? `1/${i}` : i}
 						>
-							{i}
+							{inverse && <div className="inverseSign">1</div>}
+							<div style={{ fontSize: inverse ? 10 : 15 }}>{i}</div>
 						</button>
 					))}
 					<button
