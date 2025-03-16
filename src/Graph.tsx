@@ -95,6 +95,7 @@ function Graph(_props: IGraphProps) {
 						style={{
 							left: `${i + 3}px`,
 							top: `${horizontalCenter}px`,
+							fontSize: 8 * Math.E ** (0.005 * unitSize),
 						}}
 					>
 						{-Math.round((verticalCenter - i) / unitSize).toFixed(0)}
@@ -118,6 +119,7 @@ function Graph(_props: IGraphProps) {
 						style={{
 							left: `${verticalCenter + 3}px`,
 							top: `${i}px`,
+							fontSize: 8 * Math.E ** (0.005 * unitSize),
 						}}
 					>
 						{Math.round((horizontalCenter - i) / unitSize).toFixed(0)}

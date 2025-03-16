@@ -60,7 +60,7 @@ const Controls = (_props: IControlProps) => {
 									break;
 								case 'graph an exponential function':
 									editCalculator(calculator, {
-										equation: ['Math.E', '^', 'x'],
+										equation: ['Math.E', '**', 'x'],
 									});
 									break;
 								case 'graph a logarithmic function':
