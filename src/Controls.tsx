@@ -15,6 +15,8 @@ const Controls = (_props: IControlProps) => {
 		calculators,
 		unitSize,
 		setUnitSize,
+		tutorial,
+		setTutorial,
 	} = useStore((state) => state);
 
 	return (
@@ -100,6 +102,22 @@ const Controls = (_props: IControlProps) => {
 							>{`on calculator ${ndx + 1}`}</option>
 						))}
 					</select>
+					{tutorial === 0 && (
+						<div className="tutorial tutorialOne">
+							<div style={{ position: 'relative' }}>
+								Select an example function to start.
+							</div>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+								}}
+							>
+								<button onClick={() => setTutorial(4)}>Dismiss</button>
+								<button onClick={() => setTutorial(tutorial + 1)}>Next</button>
+							</div>
+						</div>
+					)}
 				</div>
 				<div className="controlContainer">
 					<span>Unit size&nbsp;</span>
@@ -137,6 +155,22 @@ const Controls = (_props: IControlProps) => {
 						<option>Differentiate</option>
 						<option>Integrate</option>
 					</select>
+					{tutorial === 2 && (
+						<div className="tutorial tutorialThree">
+							<div style={{ position: 'relative' }}>
+								Use the operation dropdown or the calculator's calculus buttons
+								to perform calculus operations.
+							</div>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+								}}
+							>
+								<button onClick={() => setTutorial(4)}>Finish</button>
+							</div>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

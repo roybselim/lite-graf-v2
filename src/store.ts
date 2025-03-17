@@ -20,6 +20,8 @@ export interface IStore {
 	setUnitSize: (val: number) => void;
 	setHorizontalShift: (val: number) => void;
 	setVerticalShift: (val: number) => void;
+	tutorial: number;
+	setTutorial: (val: number) => void;
 }
 
 const useStore = create<IStore>((set) => ({
@@ -61,6 +63,8 @@ const useStore = create<IStore>((set) => ({
 	setHorizontalShift: (val: number) => set(() => ({ horizontalShift: val })),
 	verticalShift: VERTICAL_SHIFT,
 	setVerticalShift: (val: number) => set(() => ({ verticalShift: val })),
+	tutorial: 0,
+	setTutorial: (val: number) => set(() => ({ tutorial: val })),
 }));
 
 export default useStore;

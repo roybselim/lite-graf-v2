@@ -18,7 +18,9 @@ const Calculator = (_props: ICalculatorProps) => {
 	const [answerMode, setAnswerMode] = useState(false);
 	const { calculator } = _props;
 
-	const { removeCalculator, editCalculator } = useStore((state) => state);
+	const { removeCalculator, editCalculator, tutorial, setTutorial } = useStore(
+		(state) => state
+	);
 	const { equation = [], color, graphType } = calculator;
 
 	// Monitor changes to position state and update DOM
@@ -103,6 +105,25 @@ const Calculator = (_props: ICalculatorProps) => {
 						<i>seliminds</i>
 					</span>
 					<div className="displayContainer">
+						{tutorial === 1 && (
+							<div className="tutorial tutorialTwo">
+								<div style={{ position: 'relative' }}>
+									Enter your equation here, use the black `<i>x</i>` button for
+									variables. Try `2x + 5`
+								</div>
+								<div
+									style={{
+										display: 'flex',
+										justifyContent: 'space-between',
+									}}
+								>
+									<button onClick={() => setTutorial(4)}>Dismiss</button>
+									<button onClick={() => setTutorial(tutorial + 1)}>
+										Next
+									</button>
+								</div>
+							</div>
+						)}
 						<div>
 							<span style={{ fontSize: '10px' }}>&nbsp;{prevEq}</span>
 						</div>
