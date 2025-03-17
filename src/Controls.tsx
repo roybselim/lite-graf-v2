@@ -77,6 +77,9 @@ const Controls = (_props: IControlProps) => {
 								default:
 									break;
 							}
+							if (tutorial === 0) {
+								setTutorial(tutorial + 1);
+							}
 						}}
 					>
 						<option>no graph</option>
@@ -148,6 +151,9 @@ const Controls = (_props: IControlProps) => {
 									break;
 								default:
 									break;
+							}
+							if (tutorial === 2) {
+								setTutorial(4);
 							}
 						}}
 					>

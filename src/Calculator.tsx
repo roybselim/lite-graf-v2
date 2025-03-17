@@ -42,6 +42,9 @@ const Calculator = (_props: ICalculatorProps) => {
 
 	const concat = (val: string): void => {
 		if (equation.length < 19) {
+			if (tutorial === 1) {
+				setTutorial(tutorial + 1);
+			}
 			setCaret(caret + 1);
 			setAnswerMode(false);
 			setPrevEq('');
@@ -105,7 +108,7 @@ const Calculator = (_props: ICalculatorProps) => {
 						<i>seliminds</i>
 					</span>
 					<div className="displayContainer">
-						{tutorial === 1 && (
+						{tutorial === 1 && calculator.id === 0 && (
 							<div className="tutorial tutorialTwo">
 								<div style={{ position: 'relative' }}>
 									Enter your equation here, use the black `<i>x</i>` button for
@@ -169,6 +172,9 @@ const Calculator = (_props: ICalculatorProps) => {
 								color: graphType === val ? 'white' : 'black',
 							}}
 							onClick={() => {
+								if (tutorial === 2) {
+									setTutorial(4);
+								}
 								editCalculator(calculator.id, { graphType: val });
 							}}
 						>
