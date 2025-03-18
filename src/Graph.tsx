@@ -20,8 +20,9 @@ function Graph(_props: IGraphProps) {
 		verticalShift,
 		setVerticalShift,
 		setHorizontalShift,
+		angular,
 	} = useStore((state) => state);
-
+	const useAngular = angular ? Math.PI : 1;
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
 	const horizontalCenter = (height - verticalShift) / 2;
@@ -37,7 +38,7 @@ function Graph(_props: IGraphProps) {
 	const getEquation = (equation: any, point: number, useDegrees: boolean) => {
 		const preEquation = useDegrees
 			? equation.replace(
-					/(?<=(sin\(|cos\(|tan\(|sin|cos|tan))x/g,
+					/(?<=(sin\(|cos\(|tan\(|sin|cos|tan).*)x/g,
 					`(${((point / unitSize) * (Math.PI / 180)).toString()})`
 			  )
 			: equation;
@@ -75,19 +76,19 @@ function Graph(_props: IGraphProps) {
 		setTooltipX(event.screenX);
 		setTooltipY(event.screenY);
 		setValueY(y);
-		setValueX(x);
+		setValueX(`${x}${useAngular > 1 ? 'π' : ''}`);
 	};
 
 	const generateGridsCoordinatesPoints = () => {
 		let contents: any = [];
-		const remainder_x = verticalCenter % unitSize;
+		const remainder_x = (verticalCenter / useAngular) % unitSize;
 		const remainder_y = horizontalCenter % unitSize;
 		const biggerValue = Math.max(width, height);
 		for (let i = 0; i < biggerValue; i++) {
-			if (Math.abs(i - remainder_x) % unitSize < 1) {
+			if (Math.abs(i / useAngular - remainder_x) % unitSize < 1 / useAngular) {
 				contents.push(
 					<div
-						key={`${Math.random() * Date.now()}`}
+						key={`${i}-verticalGrid-${useAngular ? 'angular' : ''}`}
 						className="absBlack verticalGrid"
 						style={{
 							left: `${i}px`,
@@ -96,7 +97,7 @@ function Graph(_props: IGraphProps) {
 				);
 				contents.push(
 					<div
-						key={`${Math.random() * Date.now()}`}
+						key={`${i}-verticalCoordinate-${useAngular ? 'angular' : ''}`}
 						className="coordinate"
 						style={{
 							left: `${i + 3}px`,
@@ -104,14 +105,16 @@ function Graph(_props: IGraphProps) {
 							fontSize: 8 * Math.E ** (0.005 * unitSize),
 						}}
 					>
-						{-Math.round((verticalCenter - i) / unitSize).toFixed(0)}
+						{`${-Math.round(
+							(verticalCenter - i) / useAngular / unitSize
+						).toFixed(0)}${useAngular > 1 ? 'π' : ''}`}
 					</div>
 				);
 			}
 			if (Math.abs(i - remainder_y) % unitSize < 1 && i < height) {
 				contents.push(
 					<div
-						key={`${Math.random() * Date.now()}`}
+						key={`${i}-horizontal`}
 						className="absBlack horizontalGrid"
 						style={{
 							top: `${i - 1}px`,
@@ -120,7 +123,7 @@ function Graph(_props: IGraphProps) {
 				);
 				contents.push(
 					<div
-						key={`${Math.random() * Date.now()}`}
+						key={`${i}-horizontalCoordinate`}
 						className="coordinate"
 						style={{
 							left: `${verticalCenter + 3}px`,
@@ -165,7 +168,7 @@ function Graph(_props: IGraphProps) {
 										valueAtPoint / unitSize -
 										(horizontalCenter + verticalShift) / unitSize
 									).toFixed(2),
-									((i - verticalCenter) / unitSize).toFixed(2)
+									((i - verticalCenter) / useAngular / unitSize).toFixed(2)
 								);
 							}}
 							onMouseOut={() => {

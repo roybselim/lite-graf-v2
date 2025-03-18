@@ -189,3 +189,10 @@
 	right: 0px;
 	width: 220px;
 }
+.equationContainer {
+	display: flex;
+	width: 100%;
+	overflow: hidden;
+	align-items: flex-end;
+	height: 30px;
+}

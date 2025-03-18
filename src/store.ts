@@ -24,6 +24,8 @@ export interface IStore {
 	setVerticalShift: (val: number) => void;
 	tutorial: number;
 	setTutorial: (val: number) => void;
+	angular: boolean;
+	setAngular: (val: boolean) => void;
 }
 
 const useStore = create<IStore>((set) => ({
@@ -79,6 +81,15 @@ const useStore = create<IStore>((set) => ({
 	setVerticalShift: (val: number) => set(() => ({ verticalShift: val })),
 	tutorial: 0,
 	setTutorial: (val: number) => set(() => ({ tutorial: val })),
+	angular: false,
+	setAngular: (val: boolean) =>
+		set((state) => ({
+			angular: val,
+			calculators: state.calculators.map((calc) => ({
+				...calc,
+				...{ useDegrees: false },
+			})),
+		})),
 }));
 
 export default useStore;

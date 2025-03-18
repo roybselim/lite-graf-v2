@@ -1,26 +1,31 @@
-import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import { getEquation, parseEquation, sanitize } from './helpers';
 import useStore, { ICalculator } from './store';
+import { useEffect, useRef, useState } from 'react';
+import { getEquation, parseEquation, sanitize } from './helpers';
 
 interface ICalculatorProps {
 	calculator: ICalculator;
 }
 
 const Calculator = (_props: ICalculatorProps) => {
-	const [pressed, setPressed] = useState(false);
-	const [position, setPosition] = useState({ x: 0, y: 0 });
-	const [ans, setAns] = useState('');
+	const { calculator } = _props;
 	const ref = useRef<any>(null);
+	const [ans, setAns] = useState('');
 	const [caret, setCaret] = useState(0);
 	const [prevEq, setPrevEq] = useState('');
+	const [pressed, setPressed] = useState(false);
 	const [inverse, setInverse] = useState(false);
 	const [answerMode, setAnswerMode] = useState(false);
-	const { calculator } = _props;
+	const [position, setPosition] = useState({ x: 0, y: 0 });
 
-	const { removeCalculator, editCalculator, tutorial, setTutorial } = useStore(
-		(state) => state
-	);
+	const {
+		removeCalculator,
+		editCalculator,
+		tutorial,
+		setTutorial,
+		angular,
+		setAngular,
+	} = useStore((state) => state);
 	const { equation = [], color, graphType, useDegrees, id } = calculator;
 
 	// Monitor changes to position state and update DOM
@@ -65,7 +70,7 @@ const Calculator = (_props: ICalculatorProps) => {
 			const equationStr = equation.join('');
 			const preEquation = useDegrees
 				? equationStr.replace(
-						/(?<=(sin\(|cos\(|tan\(|sin|cos|tan))\d+/g,
+						/(?<=(sin\(|cos\(|tan\(|sin|cos|tan).*)\d+/g,
 						(val) => (parseInt(val) * (Math.PI / 180)).toString()
 				  )
 				: equationStr;
@@ -142,13 +147,9 @@ const Calculator = (_props: ICalculatorProps) => {
 							</span>
 						</div>
 						<div
+							className="equationContainer"
 							style={{
-								display: 'flex',
-								width: '100%',
-								overflow: 'hidden',
 								justifyContent: answerMode ? 'flex-end' : 'flex-start',
-								alignItems: 'flex-end',
-								height: '30px',
 							}}
 						>
 							{equation.map((eq, ndx) => (
@@ -177,7 +178,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					{[
 						{ Equation: 'ƒ(x)' },
 						{ Differentiate: 'ƒ`(x)' },
-						{ Integrate: '∫ƒ(x)dx' },
+						{ Integrate: '∫ƒ(x)' },
 					].map((val: any) => {
 						const type = Object.keys(val)[0];
 						return (
@@ -210,6 +211,17 @@ const Calculator = (_props: ICalculatorProps) => {
 						1/x
 					</button>
 					<button
+						style={{
+							backgroundColor: angular ? 'black' : 'white',
+							color: angular ? 'white' : 'black',
+						}}
+						className="operation"
+						onClick={() => setAngular(!angular)}
+					>
+						ω
+					</button>
+					<button
+						disabled={angular}
 						style={{
 							fontSize: '8px',
 						}}
