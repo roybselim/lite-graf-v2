@@ -62,14 +62,19 @@ const Calculator = (_props: ICalculatorProps) => {
 		setAnswerMode(true);
 		setPrevEq(getEquation(equation));
 		try {
-			const ans = eval(parseEquation(equation.join('')))
-				.toString()
-				.split('');
+			const equationStr = equation.join('');
+			const preEquation = useDegrees
+				? equationStr.replace(
+						/(?<=(sin\(|cos\(|tan\(|sin|cos|tan))\d+/g,
+						(val) => (parseInt(val) * (Math.PI / 180)).toString()
+				  )
+				: equationStr;
+			const ans = eval(parseEquation(preEquation)).toString().split('');
 			editCalculator(id, { equation: ans });
 			setCaret(0);
 			setAns(ans.join(''));
 		} catch (_e) {
-			editCalculator(id, { equation: 'Syntax Error'.split('') });
+			editCalculator(id, { equation: ['Syntax Error'] });
 		}
 	};
 
