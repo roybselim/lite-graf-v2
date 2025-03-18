@@ -21,7 +21,7 @@ const Calculator = (_props: ICalculatorProps) => {
 	const { removeCalculator, editCalculator, tutorial, setTutorial } = useStore(
 		(state) => state
 	);
-	const { equation = [], color, graphType } = calculator;
+	const { equation = [], color, graphType, useDegrees, id } = calculator;
 
 	// Monitor changes to position state and update DOM
 	useEffect(() => {
@@ -51,9 +51,9 @@ const Calculator = (_props: ICalculatorProps) => {
 			if (caret < equation.length) {
 				const newEq = [...equation];
 				newEq.splice(caret, 0, val);
-				editCalculator(calculator.id, { equation: newEq });
+				editCalculator(id, { equation: newEq });
 			} else {
-				editCalculator(calculator.id, { equation: [...equation, val] });
+				editCalculator(id, { equation: [...equation, val] });
 			}
 		}
 	};
@@ -65,11 +65,11 @@ const Calculator = (_props: ICalculatorProps) => {
 			const ans = eval(parseEquation(equation.join('')))
 				.toString()
 				.split('');
-			editCalculator(calculator.id, { equation: ans });
+			editCalculator(id, { equation: ans });
 			setCaret(0);
 			setAns(ans.join(''));
 		} catch (_e) {
-			editCalculator(calculator.id, { equation: 'Syntax Error'.split('') });
+			editCalculator(id, { equation: 'Syntax Error'.split('') });
 		}
 	};
 
@@ -77,7 +77,7 @@ const Calculator = (_props: ICalculatorProps) => {
 		const newEq = [...equation];
 		newEq.splice(caret - 1, 1);
 		setCaret(caret - 1);
-		editCalculator(calculator.id, { equation: newEq });
+		editCalculator(id, { equation: newEq });
 	};
 
 	return (
@@ -87,7 +87,7 @@ const Calculator = (_props: ICalculatorProps) => {
 			onMouseMove={onMouseMove}
 			onMouseDown={() => setPressed(true)}
 			onMouseUp={() => setPressed(false)}
-			style={{ bottom: 0, right: 0 + calculator.id * 270 }}
+			style={{ bottom: 0, right: 0 + id * 270 }}
 		>
 			<div className="keypad">
 				<div
@@ -98,7 +98,7 @@ const Calculator = (_props: ICalculatorProps) => {
 				>
 					<div
 						onClick={() => {
-							removeCalculator(calculator.id);
+							removeCalculator(id);
 						}}
 						className="removeCalc"
 					>
@@ -108,11 +108,14 @@ const Calculator = (_props: ICalculatorProps) => {
 						<i>seliminds</i>
 					</span>
 					<div className="displayContainer">
-						{tutorial === 1 && calculator.id === 0 && (
+						{tutorial === 1 && id === 0 && (
 							<div className="tutorial tutorialTwo">
 								<div style={{ position: 'relative' }}>
-									Enter your equation here, use the black `<i>x</i>` button for
-									variables. Try `2x + 5`
+									Enter your equation here, use the black `
+									<i>
+										<span className="smallButton">&nbsp;x&nbsp;</span>
+									</i>
+									` button for variables. Try `2x + 5`
 								</div>
 								<div
 									style={{
@@ -127,8 +130,11 @@ const Calculator = (_props: ICalculatorProps) => {
 								</div>
 							</div>
 						)}
-						<div>
+						<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 							<span style={{ fontSize: '10px' }}>&nbsp;{prevEq}</span>
+							<span style={{ fontSize: '8px' }}>
+								{useDegrees ? 'DEG' : 'RAD'}
+							</span>
 						</div>
 						<div
 							style={{
@@ -163,24 +169,31 @@ const Calculator = (_props: ICalculatorProps) => {
 					</div>
 				</div>
 				<div className="row">
-					{['Equation', 'Differentiate', 'Integrate'].map((val) => (
-						<button
-							key={val}
-							className="operation"
-							style={{
-								backgroundColor: graphType === val ? 'black' : 'white',
-								color: graphType === val ? 'white' : 'black',
-							}}
-							onClick={() => {
-								if (tutorial === 2) {
-									setTutorial(4);
-								}
-								editCalculator(calculator.id, { graphType: val });
-							}}
-						>
-							{val === 'Equation' ? 'Graph' : val}
-						</button>
-					))}
+					{[
+						{ Equation: 'ƒ(x)' },
+						{ Differentiate: 'ƒ`(x)' },
+						{ Integrate: '∫ƒ(x)dx' },
+					].map((val: any) => {
+						const type = Object.keys(val)[0];
+						return (
+							<button
+								key={type}
+								className="operation"
+								style={{
+									backgroundColor: graphType === type ? 'black' : 'white',
+									color: graphType === type ? 'white' : 'black',
+								}}
+								onClick={() => {
+									if (tutorial === 2) {
+										setTutorial(4);
+									}
+									editCalculator(id, { graphType: type });
+								}}
+							>
+								{val[type]}
+							</button>
+						);
+					})}
 					<button
 						style={{
 							backgroundColor: inverse ? 'black' : 'white',
@@ -190,6 +203,18 @@ const Calculator = (_props: ICalculatorProps) => {
 						onClick={() => setInverse(!inverse)}
 					>
 						1/x
+					</button>
+					<button
+						style={{
+							fontSize: '8px',
+						}}
+						className="operation"
+						onClick={() => {
+							editCalculator(id, { useDegrees: !useDegrees });
+						}}
+					>
+						<span style={{ color: useDegrees ? 'green' : 'red' }}>DEG</span>|
+						<span style={{ color: !useDegrees ? 'green' : 'red' }}>RAD</span>
 					</button>
 				</div>
 				<div className="row">
@@ -280,7 +305,7 @@ const Calculator = (_props: ICalculatorProps) => {
 					<button
 						className="button bigButton"
 						onClick={() => {
-							editCalculator(calculator.id, { equation: [''] });
+							editCalculator(id, { equation: [''] });
 							setCaret(0);
 							setPrevEq('');
 						}}

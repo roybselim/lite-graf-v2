@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import useWindowDimensions from './useWindowDimensions';
-import { parseEquation } from './helpers';
-import useStore, { ICalculator } from './store';
+import useStore from './store';
 
 interface IGraphProps {}
 
@@ -35,24 +34,31 @@ function Graph(_props: IGraphProps) {
 		}
 	};
 
-	const getEquation = (equation: any, point: number) => {
+	const getEquation = (equation: any, point: number, useDegrees: boolean) => {
+		const preEquation = useDegrees
+			? equation.replace(
+					/(?<=(sin\(|cos\(|tan\(|sin|cos|tan))x/g,
+					`(${((point / unitSize) * (Math.PI / 180)).toString()})`
+			  )
+			: equation;
 		return eval(
-			parseEquation(equation).replace(
-				/x/g,
-				`(${(point / unitSize).toString()})`
-			)
+			preEquation.replace(/x/g, `(${(point / unitSize).toString()})`)
 		);
 	};
 
-	const getValueAtPoint = (calc: ICalculator, point: number): number => {
+	const getValueAtPoint = (
+		equation: string,
+		point: number,
+		type: string,
+		useDegrees: boolean
+	): number => {
 		try {
-			const { equation, graphType } = calc;
-			const exactPoint = getEquation(equation.join(''), point);
-			switch (graphType) {
+			const exactPoint = getEquation(equation, point, useDegrees);
+			switch (type) {
 				case 'Equation':
 					return exactPoint;
 				case 'Differentiate':
-					const pointPlusOne = getEquation(equation.join(''), point + 1);
+					const pointPlusOne = getEquation(equation, point + 1, useDegrees);
 					return (pointPlusOne - exactPoint) / ((point + 1 - point) / unitSize);
 				case 'Integrate':
 					integrand += exactPoint;
@@ -127,12 +133,26 @@ function Graph(_props: IGraphProps) {
 				);
 			}
 			calculators.forEach((calc) => {
+				const { parsedEquation, graphType, useDegrees } = calc;
+				const shifts = horizontalCenter + verticalShift;
 				const valueAtPoint =
-					getValueAtPoint(calc, i - verticalCenter) * unitSize +
-					(horizontalCenter + verticalShift);
+					getValueAtPoint(
+						parsedEquation,
+						i - verticalCenter,
+						graphType,
+						useDegrees
+					) *
+						unitSize +
+					shifts;
 				const valueAtPrevPoint =
-					getValueAtPoint(calc, i + 1 - verticalCenter) * unitSize +
-					(horizontalCenter + verticalShift);
+					getValueAtPoint(
+						parsedEquation,
+						i + 1 - verticalCenter,
+						graphType,
+						useDegrees
+					) *
+						unitSize +
+					shifts;
 				const length = Math.abs(valueAtPoint - valueAtPrevPoint);
 				if (valueAtPoint >= 0) {
 					contents.push(
@@ -151,7 +171,7 @@ function Graph(_props: IGraphProps) {
 							onMouseOut={() => {
 								setShowPointsTooltip(false);
 							}}
-							key={`${Math.random() * Date.now()}`}
+							key={`${calc.equation}-${i}-${useDegrees ? 'deg' : 'rad'}`}
 							className="equationValue"
 							style={{
 								height: `${length + 2}px`,

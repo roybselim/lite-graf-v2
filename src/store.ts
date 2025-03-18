@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { randomRGB } from './helpers';
+import { parseEquation, randomRGB } from './helpers';
 import { HORIZONTAL_SHIFT, UNIT_SIZE, VERTICAL_SHIFT } from './constants';
 
 export interface ICalculator {
@@ -7,6 +7,8 @@ export interface ICalculator {
 	equation: string[];
 	graphType: string;
 	color: string;
+	parsedEquation: string;
+	useDegrees: boolean;
 }
 
 export interface IStore {
@@ -31,6 +33,8 @@ const useStore = create<IStore>((set) => ({
 			equation: [],
 			graphType: 'Equation',
 			color: '#212121',
+			parsedEquation: '',
+			useDegrees: false,
 		},
 	],
 	addCalculator: () =>
@@ -44,6 +48,8 @@ const useStore = create<IStore>((set) => ({
 					equation: [],
 					graphType: 'Equation',
 					color: randomRGB(),
+					parsedEquation: '',
+					useDegrees: false,
 				},
 			],
 		})),
@@ -51,12 +57,20 @@ const useStore = create<IStore>((set) => ({
 		set((state: IStore) => ({
 			calculators: state.calculators.filter((calc) => calc.id !== id),
 		})),
-	editCalculator: (id: number, newEq: any) =>
-		set((state: any) => ({
+	editCalculator: (id: number, newEq: any) => {
+		let withParsed = newEq;
+		if (newEq.equation) {
+			withParsed = {
+				...newEq,
+				parsedEquation: parseEquation(newEq.equation.join('')),
+			};
+		}
+		return set((state: any) => ({
 			calculators: state.calculators.map((calc: any) =>
-				calc.id !== id ? calc : { ...calc, ...newEq }
+				calc.id !== id ? calc : { ...calc, ...withParsed }
 			),
-		})),
+		}));
+	},
 	unitSize: UNIT_SIZE,
 	setUnitSize: (val: number) => set(() => ({ unitSize: val })),
 	horizontalShift: HORIZONTAL_SHIFT,
