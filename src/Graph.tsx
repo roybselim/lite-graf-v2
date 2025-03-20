@@ -87,7 +87,10 @@ function Graph(_props: IGraphProps) {
 		const remainder_y = horizontalCenter % unitSize;
 		const biggerValue = Math.max(width, height);
 		for (let i = 0; i < biggerValue; i++) {
-			if (Math.abs(i / useAngular - remainder_x) % unitSize < 1 / useAngular) {
+			if (
+				Math.abs(i / useAngular - remainder_x) % unitSize < 1 / useAngular &&
+				i < width
+			) {
 				contents.push(
 					<div
 						key={`${i}-verticalGrid-${useAngular ? 'angular' : ''}`}
