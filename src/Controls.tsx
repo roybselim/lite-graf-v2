@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import useWindowDimensions from './useWindowDimensions';
 import useStore from './store';
+import { SCALE_DIVISOR } from './constants';
 
 interface IControlProps {}
 
@@ -17,6 +18,8 @@ const Controls = (_props: IControlProps) => {
 		setUnitSize,
 		tutorial,
 		setTutorial,
+		scale,
+		setScale,
 	} = useStore((state) => state);
 
 	return (
@@ -134,6 +137,19 @@ const Controls = (_props: IControlProps) => {
 						}}
 					/>
 					<span>&nbsp;{`${unitSize}`}</span>
+				</div>
+				<div className="controlContainer">
+					<span>Scale&nbsp;</span>
+					<input
+						type="range"
+						min={1}
+						max={50}
+						value={scale}
+						onChange={(event) => {
+							setScale(parseInt(event.currentTarget.value));
+						}}
+					/>
+					<span>&nbsp;{`${scale / SCALE_DIVISOR}`}</span>
 				</div>
 				<div className="controlContainer">
 					<span>Operation:&nbsp;</span>

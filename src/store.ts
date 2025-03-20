@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { parseEquation, randomRGB } from './helpers';
-import { HORIZONTAL_SHIFT, UNIT_SIZE, VERTICAL_SHIFT } from './constants';
+import {
+	HORIZONTAL_SHIFT,
+	SCALE_DIVISOR,
+	UNIT_SIZE,
+	VERTICAL_SHIFT,
+} from './constants';
 
 export interface ICalculator {
 	id: number;
@@ -26,6 +31,8 @@ export interface IStore {
 	setTutorial: (val: number) => void;
 	angular: boolean;
 	setAngular: (val: boolean) => void;
+	scale: number;
+	setScale: (val: number) => void;
 }
 
 const useStore = create<IStore>((set) => ({
@@ -90,6 +97,8 @@ const useStore = create<IStore>((set) => ({
 				...{ useDegrees: false },
 			})),
 		})),
+	scale: SCALE_DIVISOR,
+	setScale: (val: number) => set(() => ({ scale: val })),
 }));
 
 export default useStore;

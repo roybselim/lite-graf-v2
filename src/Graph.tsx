@@ -2,31 +2,34 @@ import { useState } from 'react';
 import './App.css';
 import useWindowDimensions from './useWindowDimensions';
 import useStore from './store';
+import { SCALE_DIVISOR } from './constants';
 
 interface IGraphProps {}
 
 function Graph(_props: IGraphProps) {
-	const [showPointsTooltip, setShowPointsTooltip] = useState(true);
-	const [tooltipX, setTooltipX] = useState(0);
-	const [tooltipY, setTooltipY] = useState(0);
 	const [valueY, setValueY] = useState('');
 	const [valueX, setValueX] = useState('');
+	const [tooltipY, setTooltipY] = useState(0);
+	const [tooltipX, setTooltipX] = useState(0);
 	const [pressed, setPressed] = useState(false);
+	const [showPointsTooltip, setShowPointsTooltip] = useState(true);
 
 	const {
-		calculators,
+		scale,
+		angular,
 		unitSize,
-		horizontalShift,
+		calculators,
 		verticalShift,
+		horizontalShift,
 		setVerticalShift,
 		setHorizontalShift,
-		angular,
 	} = useStore((state) => state);
+	let integrand = 0;
 	const useAngular = angular ? Math.PI : 1;
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
 	const horizontalCenter = (height - verticalShift) / 2;
-	let integrand = 0;
+	const scaleShift = scale / SCALE_DIVISOR;
 
 	const onMouseMove = (event: any) => {
 		if (pressed) {
@@ -105,9 +108,10 @@ function Graph(_props: IGraphProps) {
 							fontSize: 8 * Math.E ** (0.005 * unitSize),
 						}}
 					>
-						{`${-Math.round(
-							(verticalCenter - i) / useAngular / unitSize
-						).toFixed(0)}${useAngular > 1 ? 'π' : ''}`}
+						{`${-(
+							((verticalCenter - i) / useAngular / unitSize) *
+							scaleShift
+						).toFixed(1)}${useAngular > 1 ? 'π' : ''}`}
 					</div>
 				);
 			}
@@ -131,30 +135,31 @@ function Graph(_props: IGraphProps) {
 							fontSize: 8 * Math.E ** (0.005 * unitSize),
 						}}
 					>
-						{Math.round((horizontalCenter - i) / unitSize).toFixed(0)}
+						{+(((horizontalCenter - i) / unitSize) * scaleShift).toFixed(1)}
 					</div>
 				);
 			}
 			calculators.forEach((calc) => {
 				const { parsedEquation, graphType, useDegrees } = calc;
 				const shifts = horizontalCenter + verticalShift;
+				const scaledUnitSize = unitSize / scaleShift;
 				const valueAtPoint =
 					getValueAtPoint(
 						parsedEquation,
-						i - verticalCenter,
+						(i - verticalCenter) * scaleShift,
 						graphType,
 						useDegrees
 					) *
-						unitSize +
+						scaledUnitSize +
 					shifts;
 				const valueAtPrevPoint =
 					getValueAtPoint(
 						parsedEquation,
-						i + 1 - verticalCenter,
+						(i + 1 - verticalCenter) * scaleShift,
 						graphType,
 						useDegrees
 					) *
-						unitSize +
+						scaledUnitSize +
 					shifts;
 				const length = Math.abs(valueAtPoint - valueAtPrevPoint);
 				if (valueAtPoint >= 0) {
@@ -165,10 +170,12 @@ function Graph(_props: IGraphProps) {
 								showPoints(
 									event,
 									(
-										valueAtPoint / unitSize -
-										(horizontalCenter + verticalShift) / unitSize
+										valueAtPoint / scaledUnitSize -
+										shifts / scaledUnitSize
 									).toFixed(2),
-									((i - verticalCenter) / useAngular / unitSize).toFixed(2)
+									((i - verticalCenter) / useAngular / scaledUnitSize).toFixed(
+										2
+									)
 								);
 							}}
 							onMouseOut={() => {
