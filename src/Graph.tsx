@@ -172,10 +172,7 @@ function Graph(_props: IGraphProps) {
 								setShowPointsTooltip(true);
 								showPoints(
 									event,
-									(
-										valueAtPoint / scaledUnitSize -
-										shifts / scaledUnitSize
-									).toFixed(2),
+									(valueAtPoint - shifts).toFixed(2),
 									((i - verticalCenter) / useAngular / scaledUnitSize).toFixed(
 										2
 									)

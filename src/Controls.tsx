@@ -2,12 +2,13 @@ import { useRef, useState } from 'react';
 import useWindowDimensions from './useWindowDimensions';
 import useStore from './store';
 
-interface IControlProps {}
-
-const Controls = (_props: IControlProps) => {
+const Controls = () => {
+	// const queryParams = new URLSearchParams(window.location.search);
+	// const equationRaw = queryParams.get('equation');
 	const { width, height } = useWindowDimensions();
 	const minDim = Math.min(width, height);
 	const [calculator, setCalculator] = useState(0);
+	const [showMoreControls, setShowMoreControls] = useState(false);
 	const {
 		addCalculator,
 		removeCalculator,
@@ -18,8 +19,11 @@ const Controls = (_props: IControlProps) => {
 		tutorial,
 		setTutorial,
 		setScale,
+		setVerticalShift,
+		setHorizontalShift,
 	} = useStore((state) => state);
 	const unitSizeRef = useRef<HTMLInputElement | null>(null);
+	const scaleRef = useRef<HTMLInputElement | null>(null);
 
 	return (
 		<div className="Controls">
@@ -155,6 +159,7 @@ const Controls = (_props: IControlProps) => {
 				<div className="controlContainer">
 					<span>Scale:&nbsp;</span>
 					<input
+						ref={scaleRef}
 						placeholder="1"
 						type="text"
 						style={{ width: 30 }}
@@ -210,6 +215,41 @@ const Controls = (_props: IControlProps) => {
 							</div>
 						</div>
 					)}
+				</div>
+				<div className="controlContainer ellipsis">
+					<span
+						className="ellipsis"
+						onClick={() => setShowMoreControls(!showMoreControls)}
+					>
+						...
+					</span>
+					<div
+						className="moreControls"
+						style={{ display: showMoreControls ? 'flex' : 'none' }}
+					>
+						<span
+							onClick={() => {
+								setVerticalShift(0);
+								setHorizontalShift(0);
+							}}
+						>
+							center the graph
+						</span>
+						<span
+							onClick={() => {
+								setScale(1);
+								setUnitSize(50);
+								if (unitSizeRef.current) {
+									unitSizeRef.current.value = '';
+								}
+								if (scaleRef.current) {
+									scaleRef.current.value = '';
+								}
+							}}
+						>
+							reset size and scale
+						</span>
+					</div>
 				</div>
 			</div>
 		</div>
