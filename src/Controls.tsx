@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import useWindowDimensions from './useWindowDimensions';
 import useStore from './store';
-import { SCALE_DIVISOR } from './constants';
 
 interface IControlProps {}
 
@@ -18,9 +17,9 @@ const Controls = (_props: IControlProps) => {
 		setUnitSize,
 		tutorial,
 		setTutorial,
-		scale,
 		setScale,
 	} = useStore((state) => state);
+	const unitSizeRef = useRef<HTMLInputElement | null>(null);
 
 	return (
 		<div className="Controls">
@@ -126,30 +125,48 @@ const Controls = (_props: IControlProps) => {
 					)}
 				</div>
 				<div className="controlContainer">
-					<span>Unit size&nbsp;</span>
+					<span>Unit size:&nbsp;</span>
 					<input
 						type="range"
 						min={25}
 						max={minDim}
 						value={unitSize}
 						onChange={(event) => {
+							if (unitSizeRef.current) {
+								unitSizeRef.current.value = '';
+							}
 							setUnitSize(parseInt(event.currentTarget.value));
 						}}
 					/>
-					<span>&nbsp;{`${unitSize}`}</span>
-				</div>
-				<div className="controlContainer">
-					<span>Scale&nbsp;</span>
 					<input
-						type="range"
-						min={1}
-						max={50}
-						value={scale}
+						ref={unitSizeRef}
+						placeholder={unitSize.toString()}
+						type="text"
+						style={{ width: 30 }}
 						onChange={(event) => {
-							setScale(parseInt(event.currentTarget.value));
+							const { value } = event.currentTarget;
+							const parsed = parseInt(value);
+							if (value === '' || parsed < 20) {
+								setUnitSize(50);
+							} else if (!isNaN(parsed)) setUnitSize(parsed);
 						}}
 					/>
-					<span>&nbsp;{`${scale / SCALE_DIVISOR}`}</span>
+				</div>
+				<div className="controlContainer">
+					<span>Scale:&nbsp;</span>
+					<input
+						placeholder="1"
+						type="text"
+						style={{ width: 30 }}
+						onChange={(event) => {
+							const { value } = event.currentTarget;
+							if (value === '') {
+								setScale(1);
+							}
+							const parsed = parseFloat(value);
+							if (!isNaN(parsed)) setScale(parsed);
+						}}
+					/>
 				</div>
 				<div className="controlContainer">
 					<span>Operation:&nbsp;</span>

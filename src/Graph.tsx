@@ -2,7 +2,6 @@ import { useState } from 'react';
 import './App.css';
 import useWindowDimensions from './useWindowDimensions';
 import useStore from './store';
-import { SCALE_DIVISOR } from './constants';
 
 interface IGraphProps {}
 
@@ -29,7 +28,7 @@ function Graph(_props: IGraphProps) {
 	const { width, height } = useWindowDimensions();
 	const verticalCenter = (width + horizontalShift) / 2;
 	const horizontalCenter = (height - verticalShift) / 2;
-	const scaleShift = scale / SCALE_DIVISOR;
+	const decimalPoints = (scale || 1).toString().split('.')[1] || [];
 
 	const onMouseMove = (event: any) => {
 		if (pressed) {
@@ -110,8 +109,8 @@ function Graph(_props: IGraphProps) {
 					>
 						{`${-(
 							((verticalCenter - i) / useAngular / unitSize) *
-							scaleShift
-						).toFixed(1)}${useAngular > 1 ? 'π' : ''}`}
+							scale
+						).toFixed(decimalPoints.length)}${useAngular > 1 ? 'π' : ''}`}
 					</div>
 				);
 			}
@@ -135,18 +134,22 @@ function Graph(_props: IGraphProps) {
 							fontSize: 8 * Math.E ** (0.005 * unitSize),
 						}}
 					>
-						{+(((horizontalCenter - i) / unitSize) * scaleShift).toFixed(1)}
+						{
+							+(((horizontalCenter - i) / unitSize) * scale).toFixed(
+								decimalPoints.length
+							)
+						}
 					</div>
 				);
 			}
 			calculators.forEach((calc) => {
 				const { parsedEquation, graphType, useDegrees } = calc;
 				const shifts = horizontalCenter + verticalShift;
-				const scaledUnitSize = unitSize / scaleShift;
+				const scaledUnitSize = unitSize / scale;
 				const valueAtPoint =
 					getValueAtPoint(
 						parsedEquation,
-						(i - verticalCenter) * scaleShift,
+						(i - verticalCenter) * scale,
 						graphType,
 						useDegrees
 					) *
@@ -155,7 +158,7 @@ function Graph(_props: IGraphProps) {
 				const valueAtPrevPoint =
 					getValueAtPoint(
 						parsedEquation,
-						(i + 1 - verticalCenter) * scaleShift,
+						(i + 1 - verticalCenter) * scale,
 						graphType,
 						useDegrees
 					) *
